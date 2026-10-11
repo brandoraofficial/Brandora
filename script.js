@@ -42,7 +42,6 @@ const defaultSettings = {
     instagram: "https://instagram.com",
     facebook: "https://facebook.com"
 };
-
 /* =========================================================
 FIREBASE FUNCTIONS
 ========================================================= */
@@ -103,6 +102,7 @@ async function firebasePost(path, data) {
     }
 
     return await response.json();
+
 }
 
 /* =========================================================
