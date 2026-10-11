@@ -43,20 +43,66 @@ const defaultSettings = {
     facebook: "https://facebook.com"
 };
 /* =========================================================
-FIREBASE FUNCTIONS
+FIREBASE FUNCTIONS - ADMIN AUTHENTICATION
 ========================================================= */
 
+const FIREBASE_ADMIN_UID = "am1NnnYjHMUZeTvABEYaICr6mQ13";
+
+/* GET ADMIN AUTHENTICATION TOKEN */
+
+async function getAdminAuthToken() {
+    if (!window.firebase || !firebase.auth) {
+        throw new Error(
+            "Firebase Authentication load nahi hua."
+        );
+    }
+
+    const user = firebase.auth().currentUser;
+
+    if (!user) {
+        throw new Error(
+            "Pehle admin account se login karo."
+        );
+    }
+
+    if (user.uid !== FIREBASE_ADMIN_UID) {
+        throw new Error(
+            "Aapke account ko admin permission nahi hai."
+        );
+    }
+
+    return await user.getIdToken();
+}
+
+/* SAVE PRODUCTS AND SETTINGS */
+
 async function firebaseSet(path, data) {
-    const response = await fetch(
-        FIREBASE_DATABASE_URL + path,
-        {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        }
-    );
+    const token = await getAdminAuthToken();
+
+    const cleanPath = path.startsWith("/")
+        ? path
+        : "/" + path;
+
+    const separator = cleanPath.includes("?")
+        ? "&"
+        : "?";
+
+    const url =
+        FIREBASE_DATABASE_URL +
+        cleanPath +
+        separator +
+        "auth=" +
+        encodeURIComponent(token);
+
+    const response = await fetch(url, {
+        method: "PUT",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(data)
+    });
 
     if (!response.ok) {
         throw new Error(
@@ -66,6 +112,8 @@ async function firebaseSet(path, data) {
 
     return await response.json();
 }
+
+/* LOAD PUBLIC PRODUCTS AND SETTINGS */
 
 async function firebaseGet(path) {
     const response = await fetch(
@@ -81,30 +129,31 @@ async function firebaseGet(path) {
     return await response.json();
 }
 
-/* SAVE A NEW ORDER WITHOUT REPLACING EXISTING ORDERS */
+/* SAVE CUSTOMER ORDERS */
 
 async function firebasePost(path, data) {
     const response = await fetch(
         FIREBASE_DATABASE_URL + path,
         {
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify(data)
         }
     );
 
     if (!response.ok) {
         throw new Error(
-            "Firebase order save failed: " + response.status
+            "Firebase order save failed: " +
+            response.status
         );
     }
 
     return await response.json();
-
-}
-
+        }
 /* =========================================================
 SETTINGS FUNCTIONS
 ========================================================= */
