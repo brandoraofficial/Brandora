@@ -1,4 +1,4 @@
-// BRANDORA - Admin Login
+// BRANDORA ADMIN LOGIN
 (function () {
     const firebaseConfig = {
         apiKey: "AIzaSyBN4ht6ktmWlLm_QwpJp4-K_9Ghwmlye8c",
@@ -10,117 +10,98 @@
         appId: "1:535562047751:web:ff03cc5dd490103b1f75a2"
     };
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-
-    const auth = firebase.auth();
-
-    const style = document.createElement("style");
-    style.textContent = `
-        #adminSection { display: none !important; }
-        #adminLoginBox {
-            max-width: 420px;
-            margin: 40px auto;
-            padding: 24px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            font-family: Arial, sans-serif;
+    function startAdminLogin() {
+        if (!window.firebase) {
+            document.body.insertAdjacentHTML(
+                "afterbegin",
+                '<p style="padding:20px;color:red">Firebase load nahi hua. Internet check karo.</p>'
+            );
+            return;
         }
-        #adminLoginBox input {
-            display: block;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 12px;
-            margin: 12px 0;
-        }
-        #adminLoginBox button {
-            padding: 12px 18px;
-            cursor: pointer;
-        }
-        #adminLoginMessage { overflow-wrap: anywhere; }
-    `;
-    document.head.appendChild(style);
 
-    const box = document.createElement("div");
-    box.id = "adminLoginBox";
-    box.innerHTML = `
-        <h2>Admin Login</h2>
-        <p>Sirf store admin yahan login kare.</p>
-        <form id="adminLoginForm">
-            <input id="adminEmail" type="email"
-                placeholder="Admin email" autocomplete="username" required>
-            <input id="adminPassword" type="password"
-                placeholder="Password" autocomplete="current-password" required>
-            <button type="submit">Login</button>
-        </form>
-        <p id="adminLoginMessage" role="status"></p>
-        <button id="adminLogoutButton" type="button" hidden>Logout</button>
-    `;
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
 
-    const adminSection = document.getElementById("adminSection");
-    if (adminSection) {
+        const auth = firebase.auth();
+        const adminSection = document.getElementById("adminSection");
+
+        if (!adminSection) {
+            alert("Admin section nahi mila. index.html check karna hoga.");
+            return;
+        }
+
+        const box = document.createElement("section");
+        box.id = "brandoraLogin";
+        box.style.cssText =
+            "max-width:420px;margin:35px auto;padding:24px;background:white;border:1px solid #ddd;border-radius:12px;color:#222;font-family:Arial,sans-serif";
+
+        box.innerHTML = `
+            <h2>BRANDORA Admin Login</h2>
+            <p>Admin panel kholne ke liye login karo.</p>
+            <form id="brandoraLoginForm">
+                <input id="brandoraEmail" type="email"
+                    placeholder="Admin email" required
+                    style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0">
+                <input id="brandoraPassword" type="password"
+                    placeholder="Password" required
+                    style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0">
+                <button type="submit"
+                    style="padding:12px 20px;cursor:pointer">Login</button>
+            </form>
+            <p id="brandoraMessage" role="status"></p>
+            <button id="brandoraLogout" hidden>Logout</button>
+        `;
+
         adminSection.parentNode.insertBefore(box, adminSection);
-    }
+        adminSection.style.setProperty("display", "none", "important");
 
-    const message = document.getElementById("adminLoginMessage");
-    const form = document.getElementById("adminLoginForm");
-    const logoutButton = document.getElementById("adminLogoutButton");
+        const form = document.getElementById("brandoraLoginForm");
+        const message = document.getElementById("brandoraMessage");
+        const logout = document.getElementById("brandoraLogout");
 
-    function showAdminLink() {
-        const links = document.querySelectorAll(
-            '.admin-nav-link, a[href="#adminSection"]'
-        );
-        links.forEach(link => {
-            link.addEventListener("click", function (event) {
-                event.preventDefault();
-                box.scrollIntoView({ behavior: "smooth" });
-            });
+        auth.onAuthStateChanged(function (user) {
+            if (user) {
+                adminSection.style.setProperty("display", "block", "important");
+                form.hidden = true;
+                message.textContent = "Login successful!";
+                logout.hidden = false;
+            } else {
+                adminSection.style.setProperty("display", "none", "important");
+                form.hidden = false;
+                message.textContent = "";
+                logout.hidden = true;
+            }
+        });
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            message.textContent = "Login ho raha hai...";
+
+            try {
+                await auth.signInWithEmailAndPassword(
+                    document.getElementById("brandoraEmail").value.trim(),
+                    document.getElementById("brandoraPassword").value
+                );
+                form.reset();
+            } catch (error) {
+                message.textContent =
+                    "Login nahi hua. Email/password aur Firebase settings check karo.";
+            }
+        });
+
+        logout.addEventListener("click", async function () {
+            try {
+                await auth.signOut();
+            } catch (error) {
+                message.textContent = "Logout nahi ho saka. Dobara try karo.";
+            }
         });
     }
 
-    showAdminLink();
-
-    auth.onAuthStateChanged(user => {
-        if (user && adminSection) {
-            adminSection.style.setProperty("display", "block", "important");
-            box.querySelector("h2").textContent = "Admin Account";
-            form.hidden = true;
-            message.textContent = "Login successful.";
-            logoutButton.hidden = false;
-        } else if (adminSection) {
-            adminSection.style.setProperty("display", "none", "important");
-            box.querySelector("h2").textContent = "Admin Login";
-            form.hidden = false;
-            message.textContent = "";
-            logoutButton.hidden = true;
-        }
-    });
-
-    form.addEventListener("submit", async function (event) {
-        event.preventDefault();
-        message.textContent = "Logging in...";
-
-        const email = document.getElementById("adminEmail").value.trim();
-        const password = document.getElementById("adminPassword").value;
-
-        try {
-            await auth.signInWithEmailAndPassword(email, password);
-            form.reset();
-            message.textContent = "Login successful.";
-        } catch (error) {
-            message.textContent =
-                "Login failed. Email/password check karo.";
-        }
-    });
-
-    logoutButton.addEventListener("click", async function () {
-        try {
-            await auth.signOut();
-            message.textContent = "You have logged out.";
-            box.scrollIntoView({ behavior: "smooth" });
-        } catch (error) {
-            message.textContent = "Logout nahi ho saka. Dobara try karo.";
-        }
-    });EXOTIC
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", startAdminLogin);
+    } else {
+        startAdminLogin();
+    }
+})();
