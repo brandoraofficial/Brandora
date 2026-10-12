@@ -724,7 +724,14 @@
 
     </div>
 
-    <div class="cart-footer" id="cartFooter" style="display: none;">
+    <button
+    type="button"
+    class="btn btn-primary"
+    id="checkoutStartBtn"
+    onclick="showCheckoutForm()"
+>
+    Proceed to Checkout
+    </button>
 
         <div class="cart-total-row">
             <span>Subtotal:</span>
@@ -785,8 +792,7 @@
 
         </div>
 
-        <div class="cart-action-buttons">
-
+        <div class="cart-action-buttons" id="cartActionButtons" style="display: none;">
             <button
                 class="btn btn-whatsapp-order"
                 id="whatsappCheckoutBtn"
