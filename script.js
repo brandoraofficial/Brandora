@@ -2144,3 +2144,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupEventListeners();
     updateCartUI();
 });
+function showCheckoutForm() {
+    if (!cart.length) {
+        alert("Your cart is empty.");
+        return;
+    }
+
+    const form = document.getElementById("checkoutForm");
+    const checkoutButton = document.getElementById("checkoutStartBtn");
+    const orderButton = document.getElementById("cartActionButtons");
+
+    if (form) form.style.display = "block";
+    if (checkoutButton) checkoutButton.style.display = "none";
+    if (orderButton) orderButton.style.display = "block";
+}
