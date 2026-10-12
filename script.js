@@ -1504,7 +1504,8 @@ async function processWhatsAppCheckout() {
         0
     );
 
-    const grandTotal = subtotal + SHIPPING_FEE;
+const shipping = subtotal >= 1500 ? 0 : SHIPPING_FEE;
+const grandTotal = subtotal + shipping;
 
     /*
     SAVE A SNAPSHOT OF EACH PRODUCT.
@@ -1543,7 +1544,7 @@ async function processWhatsAppCheckout() {
         items: orderItems,
 
         subtotal: subtotal,
-        shipping: SHIPPING_FEE,
+        shipping: shipping,
         total: grandTotal,
 
         paymentMethod: "Cash on Delivery",
@@ -1594,7 +1595,7 @@ async function processWhatsAppCheckout() {
         `Address: ${address}\n\n` +
         `*Order Items:*\n${itemsListText}\n\n` +
         `Subtotal: Rs. ${subtotal.toLocaleString()}\n` +
-        `Shipping: Rs. ${SHIPPING_FEE.toLocaleString()}\n` +
+        `Shipping: ${shipping === 0 ? "FREE" : "Rs. " + shipping.toLocaleString()}\n` +
         `*Total Amount: Rs. ${grandTotal.toLocaleString()}*\n\n` +
         `Payment Method: Cash on Delivery (COD)`;
 
