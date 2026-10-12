@@ -1597,6 +1597,7 @@ const grandTotal = subtotal + shipping;
         `Subtotal: Rs. ${subtotal.toLocaleString()}\n` +
         `Shipping: ${shipping === 0 ? "FREE" : "Rs. " + shipping.toLocaleString()}\n` +
         `*Total Amount: Rs. ${grandTotal.toLocaleString()}*\n\n` +
+        `Estimated Delivery: Karachi 1–4 working days; other cities in Pakistan 3–7 working days (estimated)\n` +
         `Payment Method: Cash on Delivery (COD)`;
 
     const whatsappURL =
