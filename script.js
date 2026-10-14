@@ -1421,7 +1421,16 @@ function updateCartUI() {
         cartItemsHtml
     );
 
-    const grandTotal = subtotal + SHIPPING_FEE;
+    const shipping = subtotal >= 1500 ? 0 : SHIPPING_FEE;
+const grandTotal = subtotal + shipping;
+
+const cartShipping = document.getElementById("cartShipping");
+
+if (cartShipping) {
+    cartShipping.textContent = shipping === 0
+        ? "FREE"
+        : `Rs. ${shipping.toLocaleString()}`;
+        }
 
     if (cartSubtotal) {
         cartSubtotal.textContent =
