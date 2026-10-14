@@ -2167,145 +2167,285 @@ function showCheckoutForm() {
     if (checkoutButton) checkoutButton.style.display = "none";
     if (orderButton) orderButton.style.display = "block";
 }
-/* ========================================================= BRANDORA ADMIN - LOAD CUSTOMER ORDERS ========================================================= */
-async function loadAdminOrders() { const ordersList = document.getElementById("adminOrdersList"); const orderCount = document.getElementById("adminOrderCount");
-if (!ordersList) {
-    return;
-}
+/* =========================================================
+   BRANDORA ADMIN - MANAGE CUSTOMER ORDERS
+========================================================= */
 
-ordersList.textContent = "Loading orders...";
+async function loadAdminOrders() {
+    const ordersList = document.getElementById("adminOrdersList");
+    const orderCount = document.getElementById("adminOrderCount");
 
-try {
-    // Only the authenticated Brandora admin can read orders.
-    const token = await getAdminAuthToken();
+    if (!ordersList) return;
 
-    const response = await fetch(
-        FIREBASE_DATABASE_URL +
-        FIREBASE_ORDERS_PATH +
-        "?auth=" +
-        encodeURIComponent(token)
-    );
+    ordersList.textContent = "Loading orders...";
 
-    if (!response.ok) {
-        throw new Error("Orders load failed: " + response.status);
-    }
+    try {
+        const token = await getAdminAuthToken();
 
-    const data = await response.json();
+        const response = await fetch(
+            FIREBASE_DATABASE_URL +
+            "/orders.json?auth=" +
+            encodeURIComponent(token)
+        );
 
-    if (!data || typeof data !== "object") {
-        ordersList.textContent = "Abhi koi order nahi hai.";
-        if (orderCount) orderCount.textContent = "0";
-        return;
-    }
+        if (!response.ok) {
+            throw new Error("Failed to load orders: " + response.status);
+        }
 
-    const orders = Object.entries(data).reverse();
+        const data = await response.json();
 
-    if (orderCount) {
-        orderCount.textContent = orders.length;
-    }
+        if (!data || typeof data !== "object") {
+            ordersList.textContent = "Abhi koi order nahi hai.";
+            if (orderCount) orderCount.textContent = "0";
+            return;
+        }
 
-    if (!orders.length) {
-        ordersList.textContent = "Abhi koi order nahi hai.";
-        return;
-    }
+        const orders = Object.entries(data).reverse();
 
-    ordersList.replaceChildren();
+        if (orderCount) {
+            orderCount.textContent = orders.length;
+        }
 
-    orders.forEach(([orderId, order]) => {
-        const card = document.createElement("div");
+        if (orders.length === 0) {
+            ordersList.textContent = "Abhi koi order nahi hai.";
+            return;
+        }
 
-        card.style.cssText =
-            "border:1px solid #ddd;border-radius:10px;padding:15px;margin:15px 0;overflow-wrap:anywhere;";
+        ordersList.replaceChildren();
 
-        const heading = document.createElement("h3");
-        heading.textContent = "Order: " + orderId;
-        card.appendChild(heading);
+        orders.forEach(([orderId, order]) => {
+            const card = document.createElement("div");
 
-        const customer = order.customer || {};
+            card.style.cssText =
+                "border:1px solid #ddd;border-radius:12px;padding:15px;margin:15px 0;overflow-wrap:anywhere;";
 
-        const details = document.createElement("p");
-        details.textContent =
-            "Customer: " + (customer.name || "N/A") +
-            " | Phone: " + (customer.phone || "N/A") +
-            " | City: " + (customer.city || "N/A");
+            const customer = order.customer || {};
 
-        card.appendChild(details);
+            // ORDER ID
+            const heading = document.createElement("h3");
+            heading.textContent = "Order: " + orderId;
+            card.appendChild(heading);
 
-        const address = document.createElement("p");
-        address.textContent =
-            "Address: " + (customer.address || "N/A");
+            // CUSTOMER DETAILS
+            const details = document.createElement("p");
+            details.textContent =
+                "Customer: " + (customer.name || "N/A") +
+                " | Phone: " + (customer.phone || "N/A") +
+                " | City: " + (customer.city || "N/A");
+            card.appendChild(details);
 
-        card.appendChild(address);
+            const address = document.createElement("p");
+            address.textContent =
+                "Address: " + (customer.address || "N/A");
+            card.appendChild(address);
 
-        const date = document.createElement("p");
-        date.textContent =
-            "Date: " + (
-                order.orderDate
+            // ORDER DATE
+            const date = document.createElement("p");
+            date.textContent =
+                "Date: " +
+                (order.orderDate
                     ? new Date(order.orderDate).toLocaleString()
-                    : "N/A"
-            );
+                    : "N/A");
+            card.appendChild(date);
 
-        card.appendChild(date);
+            // PRODUCTS
+            const itemsHeading = document.createElement("h4");
+            itemsHeading.textContent = "Products:";
+            card.appendChild(itemsHeading);
 
-        const itemsHeading = document.createElement("h4");
-        itemsHeading.textContent = "Products:";
-        card.appendChild(itemsHeading);
+            const itemsList = document.createElement("ul");
 
-        const itemsList = document.createElement("ul");
+            (Array.isArray(order.items) ? order.items : []).forEach(item => {
+                const li = document.createElement("li");
 
-        (Array.isArray(order.items) ? order.items : []).forEach(item => {
-            const li = document.createElement("li");
+                li.textContent =
+                    (item.name || "Product") +
+                    " | Quantity: " + (Number(item.quantity) || 0) +
+                    " | Price: Rs. " +
+                    (Number(item.price) || 0).toLocaleString() +
+                    " | Total: Rs. " +
+                    (Number(item.itemTotal) || 0).toLocaleString();
 
-            li.textContent =
-                (item.name || "Product") +
-                " | Qty: " + (Number(item.quantity) || 0) +
-                " | Price: Rs. " +
-                (Number(item.price) || 0).toLocaleString() +
-                " | Item total: Rs. " +
-                (Number(item.itemTotal) || 0).toLocaleString();
+                itemsList.appendChild(li);
+            });
 
-            itemsList.appendChild(li);
+            card.appendChild(itemsList);
+
+            // TOTALS
+            const totals = document.createElement("p");
+            totals.textContent =
+                "Subtotal: Rs. " +
+                (Number(order.subtotal) || 0).toLocaleString() +
+                " | Shipping: " +
+                ((Number(order.shipping) || 0) === 0
+                    ? "FREE"
+                    : "Rs. " + Number(order.shipping).toLocaleString()) +
+                " | Grand Total: Rs. " +
+                (Number(order.total) || 0).toLocaleString();
+
+            card.appendChild(totals);
+
+            const payment = document.createElement("p");
+            payment.textContent =
+                "Payment: " + (order.paymentMethod || "Cash on Delivery");
+            card.appendChild(payment);
+
+            // STATUS DROPDOWN
+            const statusLabel = document.createElement("label");
+            statusLabel.textContent = "Order Status: ";
+
+            const statusSelect = document.createElement("select");
+
+            statusSelect.style.cssText =
+                "padding:9px;margin:8px 0;max-width:100%;";
+
+            const statuses = [
+                "Pending",
+                "Confirmed",
+                "Shipped",
+                "Delivered",
+                "Cancelled"
+            ];
+
+            statuses.forEach(status => {
+                const option = document.createElement("option");
+                option.value = status;
+                option.textContent = status;
+                statusSelect.appendChild(option);
+            });
+
+            statusSelect.value = statuses.includes(order.status)
+                ? order.status
+                : "Pending";
+
+            statusLabel.appendChild(statusSelect);
+            card.appendChild(statusLabel);
+
+            // SAVE STATUS BUTTON
+            const saveButton = document.createElement("button");
+
+            saveButton.type = "button";
+            saveButton.textContent = "Save Status";
+
+            saveButton.style.cssText =
+                "display:block;padding:10px 15px;margin:8px 0;cursor:pointer;";
+
+            saveButton.addEventListener("click", async () => {
+                saveButton.disabled = true;
+                saveButton.textContent = "Saving...";
+
+                try {
+                    const adminToken = await getAdminAuthToken();
+
+                    const updateResponse = await fetch(
+                        FIREBASE_DATABASE_URL +
+                        "/orders/" + encodeURIComponent(orderId) +
+                        ".json?auth=" + encodeURIComponent(adminToken),
+                        {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                status: statusSelect.value
+                            })
+                        }
+                    );
+
+                    if (!updateResponse.ok) {
+                        throw new Error(
+                            "Status update failed: " +
+                            updateResponse.status
+                        );
+                    }
+
+                    alert(
+                        "Order status save ho gaya: " +
+                        statusSelect.value
+                    );
+
+                    await loadAdminOrders();
+
+                } catch (error) {
+                    console.error("Status save error:", error);
+
+                    alert(
+                        "Status save nahi hua. Admin login aur Firebase rules check karo."
+                    );
+
+                    saveButton.disabled = false;
+                    saveButton.textContent = "Save Status";
+                }
+            });
+
+            card.appendChild(saveButton);
+
+            // WHATSAPP BUTTON
+            const whatsappButton = document.createElement("button");
+
+            whatsappButton.type = "button";
+            whatsappButton.textContent = "Contact Customer on WhatsApp";
+
+            whatsappButton.style.cssText =
+                "display:block;padding:10px 15px;margin:8px 0;cursor:pointer;";
+
+            whatsappButton.addEventListener("click", () => {
+                let phone = String(customer.phone || "")
+                    .replace(/\D/g, "");
+
+                if (phone.startsWith("0")) {
+                    phone = "92" + phone.slice(1);
+                } else if (phone && !phone.startsWith("92")) {
+                    phone = "92" + phone;
+                }
+
+                if (!phone) {
+                    alert("Customer ka phone number nahi mila.");
+                    return;
+                }
+
+                const message =
+                    "Assalam-o-Alaikum " +
+                    (customer.name || "") +
+                    ", aapke Brandora order " + orderId +
+                    " ka current status: " + statusSelect.value +
+                    ". Total amount: Rs. " +
+                    (Number(order.total) || 0).toLocaleString() +
+                    ". Shukriya!";
+
+                const url =
+                    "https://wa.me/" + phone +
+                    "?text=" + encodeURIComponent(message);
+
+                window.open(url, "_blank");
+            });
+
+            card.appendChild(whatsappButton);
+
+            ordersList.appendChild(card);
         });
 
-        card.appendChild(itemsList);
+    } catch (error) {
+        console.error("Admin orders error:", error);
 
-        const totals = document.createElement("p");
-        totals.textContent =
-            "Subtotal: Rs. " + (Number(order.subtotal) || 0).toLocaleString() +
-            " | Shipping: " +
-            ((Number(order.shipping) || 0) === 0
-                ? "FREE"
-                : "Rs. " + Number(order.shipping).toLocaleString()) +
-            " | Total: Rs. " +
-            (Number(order.total) || 0).toLocaleString();
-
-        card.appendChild(totals);
-
-        const payment = document.createElement("p");
-        payment.textContent =
-            "Payment: " + (order.paymentMethod || "N/A");
-
-        card.appendChild(payment);
-
-        const status = document.createElement("p");
-        status.textContent =
-            "Status: " + (order.status || "Pending");
-
-        card.appendChild(status);
-
-        ordersList.appendChild(card);
-    });
-
-} catch (error) {
-    console.error("Admin orders error:", error);
-
-    ordersList.textContent =
-        "Orders load nahi huay. Admin login aur Firebase permissions check karo.";
+        ordersList.textContent =
+            "Orders load nahi huay. Admin login aur Firebase permissions check karo.";
+    }
 }
-}
-/* REFRESH ORDERS BUTTON */
-document.addEventListener("DOMContentLoaded", () => { const refreshButton = document.getElementById("refreshOrdersBtn");
-if (refreshButton) {
-    refreshButton.addEventListener("click", loadAdminOrders);
-}
+
+/* =========================================================
+   REFRESH ORDERS BUTTON
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const refreshButton =
+        document.getElementById("refreshOrdersBtn");
+
+    if (refreshButton) {
+        refreshButton.addEventListener(
+            "click",
+            loadAdminOrders
+        );
+    }
 });
+
