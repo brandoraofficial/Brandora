@@ -211,13 +211,17 @@
 
         <div class="admin-tabs">
 
-            <button class="admin-tab-btn active" data-tab="productsTab">
-                Manage Products
-            </button>
+    <button class="admin-tab-btn active" data-tab="productsTab">
+        Manage Products
+    </button>
 
-            <button class="admin-tab-btn" data-tab="settingsTab">
-                Store Settings
-            </button>
+    <button class="admin-tab-btn" data-tab="ordersTab">
+        Manage Orders
+    </button>
+
+    <button class="admin-tab-btn" data-tab="settingsTab">
+        Store Settings
+    </button>
 
         </div>
 
@@ -412,6 +416,19 @@
         </div>
 
         <!-- Settings Tab -->
+        <div class="admin-card">
+
+    <h3>Customer Orders (<span id="adminOrderCount">0</span>)</h3>
+
+    <button type="button" class="btn btn-primary" id="refreshOrdersBtn">
+        Refresh Orders
+    </button>
+
+    <div id="adminOrdersList">
+        <p>Orders will appear here.</p>
+    </div>
+
+        </div>
         <div class="admin-tab-content" id="settingsTab">
 
             <div class="admin-card">
