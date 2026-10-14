@@ -2167,3 +2167,145 @@ function showCheckoutForm() {
     if (checkoutButton) checkoutButton.style.display = "none";
     if (orderButton) orderButton.style.display = "block";
 }
+/* ========================================================= BRANDORA ADMIN - LOAD CUSTOMER ORDERS ========================================================= */
+async function loadAdminOrders() { const ordersList = document.getElementById("adminOrdersList"); const orderCount = document.getElementById("adminOrderCount");
+if (!ordersList) {
+    return;
+}
+
+ordersList.textContent = "Loading orders...";
+
+try {
+    // Only the authenticated Brandora admin can read orders.
+    const token = await getAdminAuthToken();
+
+    const response = await fetch(
+        FIREBASE_DATABASE_URL +
+        FIREBASE_ORDERS_PATH +
+        "?auth=" +
+        encodeURIComponent(token)
+    );
+
+    if (!response.ok) {
+        throw new Error("Orders load failed: " + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!data || typeof data !== "object") {
+        ordersList.textContent = "Abhi koi order nahi hai.";
+        if (orderCount) orderCount.textContent = "0";
+        return;
+    }
+
+    const orders = Object.entries(data).reverse();
+
+    if (orderCount) {
+        orderCount.textContent = orders.length;
+    }
+
+    if (!orders.length) {
+        ordersList.textContent = "Abhi koi order nahi hai.";
+        return;
+    }
+
+    ordersList.replaceChildren();
+
+    orders.forEach(([orderId, order]) => {
+        const card = document.createElement("div");
+
+        card.style.cssText =
+            "border:1px solid #ddd;border-radius:10px;padding:15px;margin:15px 0;overflow-wrap:anywhere;";
+
+        const heading = document.createElement("h3");
+        heading.textContent = "Order: " + orderId;
+        card.appendChild(heading);
+
+        const customer = order.customer || {};
+
+        const details = document.createElement("p");
+        details.textContent =
+            "Customer: " + (customer.name || "N/A") +
+            " | Phone: " + (customer.phone || "N/A") +
+            " | City: " + (customer.city || "N/A");
+
+        card.appendChild(details);
+
+        const address = document.createElement("p");
+        address.textContent =
+            "Address: " + (customer.address || "N/A");
+
+        card.appendChild(address);
+
+        const date = document.createElement("p");
+        date.textContent =
+            "Date: " + (
+                order.orderDate
+                    ? new Date(order.orderDate).toLocaleString()
+                    : "N/A"
+            );
+
+        card.appendChild(date);
+
+        const itemsHeading = document.createElement("h4");
+        itemsHeading.textContent = "Products:";
+        card.appendChild(itemsHeading);
+
+        const itemsList = document.createElement("ul");
+
+        (Array.isArray(order.items) ? order.items : []).forEach(item => {
+            const li = document.createElement("li");
+
+            li.textContent =
+                (item.name || "Product") +
+                " | Qty: " + (Number(item.quantity) || 0) +
+                " | Price: Rs. " +
+                (Number(item.price) || 0).toLocaleString() +
+                " | Item total: Rs. " +
+                (Number(item.itemTotal) || 0).toLocaleString();
+
+            itemsList.appendChild(li);
+        });
+
+        card.appendChild(itemsList);
+
+        const totals = document.createElement("p");
+        totals.textContent =
+            "Subtotal: Rs. " + (Number(order.subtotal) || 0).toLocaleString() +
+            " | Shipping: " +
+            ((Number(order.shipping) || 0) === 0
+                ? "FREE"
+                : "Rs. " + Number(order.shipping).toLocaleString()) +
+            " | Total: Rs. " +
+            (Number(order.total) || 0).toLocaleString();
+
+        card.appendChild(totals);
+
+        const payment = document.createElement("p");
+        payment.textContent =
+            "Payment: " + (order.paymentMethod || "N/A");
+
+        card.appendChild(payment);
+
+        const status = document.createElement("p");
+        status.textContent =
+            "Status: " + (order.status || "Pending");
+
+        card.appendChild(status);
+
+        ordersList.appendChild(card);
+    });
+
+} catch (error) {
+    console.error("Admin orders error:", error);
+
+    ordersList.textContent =
+        "Orders load nahi huay. Admin login aur Firebase permissions check karo.";
+}
+}
+/* REFRESH ORDERS BUTTON */
+document.addEventListener("DOMContentLoaded", () => { const refreshButton = document.getElementById("refreshOrdersBtn");
+if (refreshButton) {
+    refreshButton.addEventListener("click", loadAdminOrders);
+}
+});
