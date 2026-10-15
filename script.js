@@ -2447,3 +2447,4 @@ document.addEventListener("DOMContentLoaded", () => {
             loadAdminOrders
         );
     }
+});
