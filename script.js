@@ -2447,33 +2447,3 @@ document.addEventListener("DOMContentLoaded", () => {
             loadAdminOrders
         );
     }
-  // Perfect Search & Filter Integration
-const searchInput = document.getElementById('searchInput');
-if (searchInput) {
-    searchInput.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase().trim();
-        const products = getProducts();
-        
-        // Active category filter ko check karein
-        const activeFilterBtn = document.querySelector('.filter-btn.active');
-        const currentCategory = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'all';
-        
-        // Pehle category ke mutabiq filter karein
-        let filtered = currentCategory === 'all' 
-            ? products 
-            : products.filter(p => p.category === currentCategory);
-            
-        // Phir search term ke mutabiq filter karein
-        if (searchTerm !== '') {
-            filtered = filtered.filter(p => 
-                (p.name && p.name.toLowerCase().includes(searchTerm)) || 
-                (p.description && p.description.toLowerCase().includes(searchTerm)) || 
-                (p.category && p.category.toLowerCase().includes(searchTerm))
-            );
-        }
-        
-        // Products ko screen par render kar dein
-        renderProducts(filtered);
-    });
-}
-
