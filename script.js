@@ -275,20 +275,27 @@ async function loadProductsFromFirebase() {
             FIREBASE_PRODUCTS_PATH
         );
 
-        if (Array.isArray(data)) {
-            const products = data.map(
-                normalizeProduct
-            );
+let products = [];
 
-            localStorage.setItem(
-                STORAGE_KEY_PRODUCTS,
-                JSON.stringify(products)
-            );
+if (Array.isArray(data)) {
+    products = data.filter(Boolean);
+} else if (data && typeof data === "object") {
+    products = Object.entries(data).map(
+        ([key, product]) => ({
+            ...product,
+            id: product.id ?? key
+        })
+    );
+}
 
-            return products;
-        }
+products = products.map(normalizeProduct);
 
-        return [];
+localStorage.setItem(
+    STORAGE_KEY_PRODUCTS,
+    JSON.stringify(products)
+);
+
+return products;
     } catch (error) {
         console.error(
             "Firebase product load error:",
