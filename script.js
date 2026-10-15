@@ -2447,28 +2447,33 @@ document.addEventListener("DOMContentLoaded", () => {
             loadAdminOrders
         );
     }
-});
-// Updated Search Functionality
+  // Perfect Search & Filter Integration
 const searchInput = document.getElementById('searchInput');
 if (searchInput) {
     searchInput.addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase().trim();
+        const products = getProducts();
         
-        // Product cards ko target karein jo grid mein hain
-        const productCards = document.querySelectorAll('.product-card');
+        // Active category filter ko check karein
+        const activeFilterBtn = document.querySelector('.filter-btn.active');
+        const currentCategory = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'all';
         
-        productCards.forEach(card => {
-            const title = card.querySelector('.product-title') ? card.querySelector('.product-title').innerText.toLowerCase() : '';
-            const desc = card.querySelector('.product-description') ? card.querySelector('.product-description').innerText.toLowerCase() : '';
-            const category = card.querySelector('.product-category-tag') ? card.querySelector('.product-category-tag').innerText.toLowerCase() : '';
+        // Pehle category ke mutabiq filter karein
+        let filtered = currentCategory === 'all' 
+            ? products 
+            : products.filter(p => p.category === currentCategory);
             
-            // Agar search term match ho toh card dikhayein, warna chupayein
-            if (title.includes(searchTerm) || desc.includes(searchTerm) || category.includes(searchTerm)) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
+        // Phir search term ke mutabiq filter karein
+        if (searchTerm !== '') {
+            filtered = filtered.filter(p => 
+                (p.name && p.name.toLowerCase().includes(searchTerm)) || 
+                (p.description && p.description.toLowerCase().includes(searchTerm)) || 
+                (p.category && p.category.toLowerCase().includes(searchTerm))
+            );
+        }
+        
+        // Products ko screen par render kar dein
+        renderProducts(filtered);
     });
 }
 
