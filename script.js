@@ -2449,3 +2449,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// Search Functionality
+const searchInput = document.getElementById('searchInput');
+if (searchInput) {
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        const products = JSON.parse(localStorage.getItem('storeProducts')) || [];
+        
+        const filtered = products.filter(p => 
+            p.name.toLowerCase().includes(searchTerm) || 
+            p.category.toLowerCase().includes(searchTerm) || 
+            p.desc.toLowerCase().includes(searchTerm)
+        );
+        
+        // Render filtered products function call karein (jo aap ki script mein products show karta hai)
+        displayProducts(filtered);
+    });
+}
