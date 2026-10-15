@@ -2448,21 +2448,27 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 });
-
-// Search Functionality
+// Updated Search Functionality
 const searchInput = document.getElementById('searchInput');
 if (searchInput) {
     searchInput.addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase().trim();
-        const products = JSON.parse(localStorage.getItem('storeProducts')) || [];
         
-        const filtered = products.filter(p => 
-            p.name.toLowerCase().includes(searchTerm) || 
-            p.category.toLowerCase().includes(searchTerm) || 
-            p.desc.toLowerCase().includes(searchTerm)
-        );
+        // Product cards ko target karein jo grid mein hain
+        const productCards = document.querySelectorAll('.product-card');
         
-        // Render filtered products function call karein (jo aap ki script mein products show karta hai)
-        displayProducts(filtered);
+        productCards.forEach(card => {
+            const title = card.querySelector('.product-title') ? card.querySelector('.product-title').innerText.toLowerCase() : '';
+            const desc = card.querySelector('.product-description') ? card.querySelector('.product-description').innerText.toLowerCase() : '';
+            const category = card.querySelector('.product-category-tag') ? card.querySelector('.product-category-tag').innerText.toLowerCase() : '';
+            
+            // Agar search term match ho toh card dikhayein, warna chupayein
+            if (title.includes(searchTerm) || desc.includes(searchTerm) || category.includes(searchTerm)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
     });
 }
+
