@@ -1451,6 +1451,41 @@ if (cartShipping) {
 }
 
 /* =========================================================
+GENERATE ORDER NUMBER
+========================================================= */
+
+async function generateOrderNumber() {
+    const response = await fetch(
+        FIREBASE_DATABASE_URL + "/orderCounter.json"
+    );
+
+    if (!response.ok) {
+        throw new Error("Order counter load nahi hua.");
+    }
+
+    let counter = Number(await response.json()) || 1000;
+
+    counter++;
+
+    const saveResponse = await fetch(
+        FIREBASE_DATABASE_URL + "/orderCounter.json",
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(counter)
+        }
+    );
+
+    if (!saveResponse.ok) {
+        throw new Error("Order counter save nahi hua.");
+    }
+
+    return "BR-" + counter;
+                            }
+
+/* =========================================================
 WHATSAPP CHECKOUT + FIREBASE ORDER SAVE
 ========================================================= */
 
