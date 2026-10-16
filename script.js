@@ -1548,7 +1548,8 @@ const grandTotal = subtotal + shipping;
     */
 
     const orderData = {
-        orderDate: new Date().toISOString(),
+    orderNumber: await generateOrderNumber(),
+    orderDate: new Date().toISOString(),
 
         customer: {
             name: name,
@@ -1645,9 +1646,7 @@ const grandTotal = subtotal + shipping;
         Add it to the WhatsApp message so orders are easier to match.
         */
 
-        const orderId = result && result.name
-            ? result.name
-            : "Saved";
+        const orderId = orderData.orderNumber;
 
         const finalMessage =
             `Order Reference: ${orderId}\n\n` + message;
