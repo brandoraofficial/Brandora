@@ -1456,34 +1456,30 @@ GENERATE ORDER NUMBER
 
 async function generateOrderNumber() {
     const response = await fetch(
-        FIREBASE_DATABASE_URL + "/orderCounter.json"
+        FIREBASE_DATABASE_URL + "/orders.json"
     );
 
     if (!response.ok) {
-        throw new Error("Order counter load nahi hua.");
+        throw new Error("Orders load nahi huay.");
     }
 
-    let counter = Number(await response.json()) || 1000;
+    const orders = await response.json() || {};
 
-    counter++;
-
-    const saveResponse = await fetch(
-        FIREBASE_DATABASE_URL + "/orderCounter.json",
-        {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(counter)
-        }
+    const usedNumbers = new Set(
+        Object.values(orders)
+            .map(order => String(order.orderNumber || ""))
     );
 
-    if (!saveResponse.ok) {
-        throw new Error("Order counter save nahi hua.");
-    }
+    let number;
 
-    return "BR-" + counter;
-                            }
+    do {
+        number = String(
+            Math.floor(100000 + Math.random() * 900000)
+        );
+    } while (usedNumbers.has(number));
+
+    return number;
+        }
 
 /* =========================================================
 WHATSAPP CHECKOUT + FIREBASE ORDER SAVE
