@@ -1,51 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Brandora Admin Panel</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
 <!-- ADMIN PANEL -->
 <section class="admin-section" id="adminSection">
 
     <div class="container">
 
         <div class="section-header">
-
             <h2>
                 <i class="fa-solid fa-sliders"></i>
-                Local Admin & Product Manager
+                Brandora Admin Panel
             </h2>
 
-            <p>
-                Manage products and store settings locally on this browser.
-            </p>
-
-            <div class="admin-notice">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                Note: This is a static GitHub Pages site. Data managed here is stored in your current browser's local storage.
-            </div>
-
+            <p>Manage products, customer orders and store settings.</p>
         </div>
 
         <div class="admin-tabs">
 
-    <button class="admin-tab-btn active" data-tab="productsTab">
-        Manage Products
-    </button>
+            <button class="admin-tab-btn active" data-tab="productsTab">
+                Manage Products
+            </button>
 
-    <button class="admin-tab-btn" data-tab="ordersTab">
-        Manage Orders
-    </button>
+            <button class="admin-tab-btn" data-tab="ordersTab">
+                Manage Orders
+            </button>
 
-    <button class="admin-tab-btn" data-tab="settingsTab">
-        Store Settings
-    </button>
+            <button class="admin-tab-btn" data-tab="settingsTab">
+                Store Settings
+            </button>
 
         </div>
 
-        <!-- Products Tab -->
+        <!-- PRODUCTS -->
         <div class="admin-tab-content active" id="productsTab">
 
             <div class="admin-card">
 
-                <h3 id="formTitle">
-                    <i class="fa-solid fa-plus-circle"></i>
-                    Add New Product
-                </h3>
+                <h3 id="formTitle">Add New Product</h3>
 
                 <form id="productForm">
 
@@ -54,29 +59,13 @@
                     <div class="form-row">
 
                         <div class="form-group">
-
                             <label>Product Name *</label>
-
-                            <input
-                                type="text"
-                                id="prodName"
-                                placeholder="e.g., Imported Woven Blanket"
-                                required
-                            >
-
+                            <input type="text" id="prodName" required>
                         </div>
 
                         <div class="form-group">
-
-                            <label>Price in PKR (Rs.) *</label>
-
-                            <input
-                                type="number"
-                                id="prodPrice"
-                                placeholder="e.g., 3500"
-                                required
-                            >
-
+                            <label>Price in PKR *</label>
+                            <input type="number" id="prodPrice" required>
                         </div>
 
                     </div>
@@ -84,15 +73,172 @@
                     <div class="form-row">
 
                         <div class="form-group">
-
                             <label>Category *</label>
 
                             <select id="prodCategory" required>
-
                                 <option value="T-Shirts">T-Shirts</option>
                                 <option value="Trousers">Trousers</option>
                                 <option value="Jackets">Jackets</option>
                                 <option value="Blankets">Blankets</option>
                                 <option value="Branded Items">Branded Items</option>
-
                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Product Badge *</label>
+                            <input type="text" id="prodBadge" value="Imported" required>
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label>Available Sizes *</label>
+                            <input type="text" id="prodSizes" value="Standard" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Product Images (maximum 4)</label>
+                            <input type="file" id="prodImageFile" accept="image/*" multiple>
+                            <input type="hidden" id="prodImageBase64">
+                            <p>You can select up to 4 pictures.</p>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Short Description *</label>
+                        <textarea id="prodDesc" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stock Quantity *</label>
+                        <input type="number" id="prodStock" min="0" value="1" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="saveProductBtn">
+                        Save Product
+                    </button>
+
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display:none;">
+                        Cancel Edit
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="admin-card">
+
+                <h3>Existing Inventory (<span id="adminProductCount">0</span>)</h3>
+
+                <div class="admin-table-responsive">
+                    <table class="admin-table" id="adminProductTable">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Sizes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ORDERS -->
+        <div class="admin-tab-content" id="ordersTab">
+
+            <div class="admin-card">
+                <h3>Customer Orders (<span id="adminOrderCount">0</span>)</h3>
+
+                <button type="button" class="btn btn-primary" id="refreshOrdersBtn">
+                    Refresh Orders
+                </button>
+
+                <div id="adminOrdersList">
+                    <p>Orders will appear here.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="admin-tab-content" id="settingsTab">
+
+            <div class="admin-card">
+
+                <h3>Store & Contact Settings</h3>
+
+                <form id="settingsForm">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Store Name *</label>
+                            <input type="text" id="settingStoreName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>WhatsApp Number *</label>
+                            <input type="text" id="settingWhatsApp" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Contact Phone *</label>
+                            <input type="text" id="settingPhone" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" id="settingEmail" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City / Location *</label>
+                            <input type="text" id="settingAddress" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Instagram URL</label>
+                            <input type="text" id="settingInstagram">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Facebook URL</label>
+                        <input type="text" id="settingFacebook">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        Save Settings
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="admin-auth.js"></script>
+<script src="script.js"></script>
+
+</body>
+                                </html>
