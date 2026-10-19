@@ -1,17 +1,98 @@
-<link rel="stylesheet" href="style.css">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-�
-
-<!-- Admin panel yahan add hoga -->
+<!-- ADMIN PANEL -->
 <section class="admin-section" id="adminSection">
-    <div class="container">
-        <h1>Brandora Admin Panel</h1>
-        <p>Admin panel load ho raha hai...</p>
-    </div>
-</section>
 
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-<script src="admin-auth.js"></script>
-<script src="script.js"></script>
+    <div class="container">
+
+        <div class="section-header">
+
+            <h2>
+                <i class="fa-solid fa-sliders"></i>
+                Local Admin & Product Manager
+            </h2>
+
+            <p>
+                Manage products and store settings locally on this browser.
+            </p>
+
+            <div class="admin-notice">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Note: This is a static GitHub Pages site. Data managed here is stored in your current browser's local storage.
+            </div>
+
+        </div>
+
+        <div class="admin-tabs">
+
+    <button class="admin-tab-btn active" data-tab="productsTab">
+        Manage Products
+    </button>
+
+    <button class="admin-tab-btn" data-tab="ordersTab">
+        Manage Orders
+    </button>
+
+    <button class="admin-tab-btn" data-tab="settingsTab">
+        Store Settings
+    </button>
+
+        </div>
+
+        <!-- Products Tab -->
+        <div class="admin-tab-content active" id="productsTab">
+
+            <div class="admin-card">
+
+                <h3 id="formTitle">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    Add New Product
+                </h3>
+
+                <form id="productForm">
+
+                    <input type="hidden" id="editProductId">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label>Product Name *</label>
+
+                            <input
+                                type="text"
+                                id="prodName"
+                                placeholder="e.g., Imported Woven Blanket"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label>Price in PKR (Rs.) *</label>
+
+                            <input
+                                type="number"
+                                id="prodPrice"
+                                placeholder="e.g., 3500"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label>Category *</label>
+
+                            <select id="prodCategory" required>
+
+                                <option value="T-Shirts">T-Shirts</option>
+                                <option value="Trousers">Trousers</option>
+                                <option value="Jackets">Jackets</option>
+                                <option value="Blankets">Blankets</option>
+                                <option value="Branded Items">Branded Items</option>
+
+                            </select>
