@@ -819,7 +819,7 @@ function applyStoreSettings(customSettings = null) {
 }
 
 /* =========================================================
-RENDER PRODUCTS
+RENDER PRODUCTS BY CATEGORY
 ========================================================= */
 
 function renderProducts(itemsToRender) {
@@ -827,165 +827,221 @@ function renderProducts(itemsToRender) {
         return;
     }
 
+    const products = Array.isArray(itemsToRender)
+        ? itemsToRender
+        : [];
+
     productGrid.innerHTML = "";
 
-    if (!itemsToRender.length) {
+    const categories = [
+        "T-Shirts",
+        "Trousers",
+        "Jackets",
+        "Blankets",
+        "Branded Items"
+    ];
+
+    if (products.length === 0) {
         productGrid.innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
                 <i class="fa-solid fa-box-open"
                    style="font-size:48px;margin-bottom:16px;"></i>
-
                 <h3>No Products Found</h3>
-
-                <p>
-                    Your shop is currently empty.
-                    Use the Admin Panel to add products.
-                </p>
-
-                <a href="#adminSection" class="btn btn-primary">
-                    <i class="fa-solid fa-plus"></i>
-                    Go to Admin Panel
-                </a>
+                <p>Abhi is category mein koi product available nahi hai.</p>
             </div>
         `;
-
         return;
     }
 
-    itemsToRender.forEach(product => {
-        const stock = getProductStock(product);
-        const soldOut = stock <= 0;
+    const groupedProducts = {};
 
-        const sizesArray =
-            String(product.sizes || "")
+    categories.forEach(category => {
+        groupedProducts[category] = [];
+    });
+
+    products.forEach(product => {
+        const category = String(product.category || "").trim();
+
+        if (!groupedProducts[category]) {
+            groupedProducts[category] = [];
+        }
+
+        groupedProducts[category].push(product);
+    });
+
+    const categoryIcons = {
+        "T-Shirts": "fa-shirt",
+        "Trousers": "fa-person",
+        "Jackets": "fa-vest",
+        "Blankets": "fa-bed",
+        "Branded Items": "fa-star"
+    };
+
+    const categoryNames = [
+        ...categories,
+        ...Object.keys(groupedProducts).filter(
+            category => !categories.includes(category)
+        )
+    ];
+
+    categoryNames.forEach(category => {
+        const categoryProducts = groupedProducts[category];
+
+        if (!categoryProducts || categoryProducts.length === 0) {
+            return;
+        }
+
+        const section = document.createElement("section");
+        section.className = "category-product-section";
+
+        const heading = document.createElement("h2");
+        heading.className = "category-section-title";
+        heading.innerHTML = `
+            <i class="fa-solid ${categoryIcons[category] || "fa-box"}"></i>
+            ${category}
+            <span class="category-product-count">
+                (${categoryProducts.length})
+            </span>
+        `;
+
+        const grid = document.createElement("div");
+        grid.className = "category-product-grid";
+
+        section.appendChild(heading);
+        section.appendChild(grid);
+        productGrid.appendChild(section);
+
+        categoryProducts.forEach(product => {
+            const stock = getProductStock(product);
+            const soldOut = stock <= 0;
+
+            const sizesArray = String(product.sizes || "")
                 .split(",")
                 .map(size => size.trim())
                 .filter(Boolean);
 
-        const sizesHtml = sizesArray
-            .map(size =>
-                `<span class="size-tag">${size}</span>`
-            )
-            .join("");
+            const sizesHtml = sizesArray
+                .map(size => `<span class="size-tag">${size}</span>`)
+                .join("");
 
-        const images = getProductImages(product);
-        const mainImage = images[0] || "";
+            const images = getProductImages(product);
+            const mainImage = images[0] || "";
 
-        let thumbnailsHtml = "";
+            let thumbnailsHtml = "";
 
-        if (images.length > 1) {
-            thumbnailsHtml = `
-                <div class="product-thumbnails">
-                    ${images.map((img, index) => `
-                        <button
-                            type="button"
-                            class="product-thumb ${index === 0 ? "active" : ""}"
-                            onclick="changeProductImage(${product.id}, ${index})"
-                        >
-                            <img
-                                src="${img}"
-                                alt="${product.name} ${index + 1}"
+            if (images.length > 1) {
+                thumbnailsHtml = `
+                    <div class="product-thumbnails">
+                        ${images.map((img, index) => `
+                            <button
+                                type="button"
+                                class="product-thumb ${index === 0 ? "active" : ""}"
+                                onclick="changeProductImage(${product.id}, ${index})"
                             >
-                        </button>
-                    `).join("")}
-                </div>
-            `;
-        }
+                                <img
+                                    src="${img}"
+                                    alt="${product.name} ${index + 1}"
+                                >
+                            </button>
+                        `).join("")}
+                    </div>
+                `;
+            }
 
-        const cartButton = soldOut
-            ? `
-                <button class="btn-add-cart sold-out-btn" disabled>
-                    <i class="fa-solid fa-ban"></i>
-                    Sold Out
-                </button>
-            `
-            : `
-                <button
-                    class="btn-add-cart"
-                    onclick="addToCart(${product.id})"
-                >
-                    <i class="fa-solid fa-bag-shopping"></i>
-                    Add to Cart
-                </button>
-            `;
+            const cartButton = soldOut
+                ? `
+                    <button class="btn-add-cart sold-out-btn" disabled>
+                        <i class="fa-solid fa-ban"></i>
+                        Sold Out
+                    </button>
+                `
+                : `
+                    <button
+                        class="btn-add-cart"
+                        onclick="addToCart(${product.id})"
+                    >
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        Add to Cart
+                    </button>
+                `;
 
-        const stockHtml = soldOut
-            ? `
-                <div class="product-stock sold-out"
-                     style="color:#dc3545;font-weight:700;margin:8px 0 12px;">
-                    <i class="fa-solid fa-circle-xmark"></i>
-                    Sold Out
-                </div>
-            `
-            : `
-                <div class="product-stock"
-                     style="color:#168a45;font-weight:700;margin:8px 0 12px;">
-                    <i class="fa-solid fa-box"></i>
-                    ${stock} available
-                </div>
-            `;
+            const stockHtml = soldOut
+                ? `
+                    <div class="product-stock sold-out"
+                         style="color:#dc3545;font-weight:700;margin:8px 0 12px;">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        Sold Out
+                    </div>
+                `
+                : `
+                    <div class="product-stock"
+                         style="color:#168a45;font-weight:700;margin:8px 0 12px;">
+                        <i class="fa-solid fa-box"></i>
+                        ${stock} available
+                    </div>
+                `;
 
-        const card = document.createElement("div");
+            const card = document.createElement("div");
+            card.className = "product-card";
 
-        card.className = "product-card";
-
-        card.innerHTML = `
-            <div class="product-image-wrap">
-                <span class="product-badge">
-                    ${product.badge || "Imported"}
-                </span>
-
-                <img
-                    id="main-img-${product.id}"
-                    class="product-main-image"
-                    src="${mainImage}"
-                    alt="${product.name}"
-                    loading="lazy"
-                >
-
-                ${thumbnailsHtml}
-            </div>
-
-            <div class="product-info">
-                <span class="product-category-tag">
-                    ${product.category || ""}
-                </span>
-
-                <h3 class="product-title">
-                    ${product.name}
-                </h3>
-
-                <p class="product-description">
-                    ${product.description || ""}
-                </p>
-
-                <div class="product-meta-row">
-                    <span class="product-price">
-                        Rs. ${Number(product.price).toLocaleString()}
+            card.innerHTML = `
+                <div class="product-image-wrap">
+                    <span class="product-badge">
+                        ${product.badge || "Imported"}
                     </span>
 
-                    <div class="product-sizes">
-                        ${sizesHtml}
+                    <img
+                        id="main-img-${product.id}"
+                        class="product-main-image"
+                        src="${mainImage}"
+                        alt="${product.name}"
+                        loading="lazy"
+                    >
+
+                    ${thumbnailsHtml}
+                </div>
+
+                <div class="product-info">
+                    <span class="product-category-tag">
+                        ${product.category || ""}
+                    </span>
+
+                    <h3 class="product-title">
+                        ${product.name}
+                    </h3>
+
+                    <p class="product-description">
+                        ${product.description || ""}
+                    </p>
+
+                    <div class="product-meta-row">
+                        <span class="product-price">
+                            Rs. ${Number(product.price).toLocaleString()}
+                        </span>
+
+                        <div class="product-sizes">
+                            ${sizesHtml}
+                        </div>
+                    </div>
+
+                    ${stockHtml}
+
+                    <div class="product-buttons">
+                        ${cartButton}
+
+                        <button
+                            class="btn-quick-wa"
+                            onclick="quickWhatsAppOrder(${product.id})"
+                            title="Order on WhatsApp"
+                        >
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </button>
                     </div>
                 </div>
+            `;
 
-                ${stockHtml}
-
-                <div class="product-buttons">
-                    ${cartButton}
-
-                    <button
-                        class="btn-quick-wa"
-                        onclick="quickWhatsAppOrder(${product.id})"
-                        title="Order on WhatsApp"
-                    >
-                        <i class="fa-brands fa-whatsapp"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-
-        productGrid.appendChild(card);
+            grid.appendChild(card);
+        });
     });
 }
 
