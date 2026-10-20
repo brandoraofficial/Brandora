@@ -1849,35 +1849,34 @@ EVENT LISTENERS
 
 function setupEventListeners() {
 
-    /* CATEGORY FILTERS */
+/* CATEGORY FILTERS */
 
-    if (categoryFilters) {
-        categoryFilters.addEventListener("click", e => {
-            if (!e.target.classList.contains("filter-btn")) {
-                return;
+if (categoryFilters) {
+    categoryFilters.addEventListener("click", e => {
+        const button = e.target.closest(".filter-btn");
+
+        if (!button || !categoryFilters.contains(button)) {
+            return;
+        }
+
+        document.querySelectorAll(".filter-btn")
+            .forEach(btn => btn.classList.remove("active"));
+
+        button.classList.add("active");
+
+        const filter = button.getAttribute("data-filter");
+        const products = getProducts();
+
+        const filteredProducts = filter === "all"
+            ? products
+            : products.filter(
+                p => String(p.category || "").trim().toLowerCase()
+                    === filter.trim().toLowerCase()
+            );
+
+        renderProducts(filteredProducts);
+    });
             }
-
-            document.querySelectorAll(".filter-btn")
-                .forEach(btn => btn.classList.remove("active"));
-
-            e.target.classList.add("active");
-
-            const filter =
-                e.target.getAttribute("data-filter");
-
-            const products = getProducts();
-
-            if (filter === "all") {
-                renderProducts(products);
-            } else {
-                renderProducts(
-                    products.filter(
-                        p => p.category === filter
-                    )
-                );
-            }
-        });
-    }
 
     /* NAVIGATION FILTERS */
 
