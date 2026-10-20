@@ -1849,34 +1849,36 @@ EVENT LISTENERS
 
 function setupEventListeners() {
 
-/* CATEGORY FILTERS */
+   /* CATEGORY FILTERS */
 
 if (categoryFilters) {
-    categoryFilters.addEventListener("click", e => {
+    categoryFilters.addEventListener("click", function (e) {
         const button = e.target.closest(".filter-btn");
 
         if (!button || !categoryFilters.contains(button)) {
             return;
         }
 
-        document.querySelectorAll(".filter-btn")
-            .forEach(btn => btn.classList.remove("active"));
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
 
         button.classList.add("active");
 
-        const filter = button.getAttribute("data-filter");
+        const filter = (button.dataset.filter || "all").trim();
+
         const products = getProducts();
 
-        const filteredProducts = filter === "all"
+        const filteredProducts = filter.toLowerCase() === "all"
             ? products
-            : products.filter(
-                p => String(p.category || "").trim().toLowerCase()
-                    === filter.trim().toLowerCase()
+            : products.filter(product =>
+                String(product.category || "").trim().toLowerCase()
+                    === filter.toLowerCase()
             );
 
         renderProducts(filteredProducts);
     });
-            }
+                }
 
     /* NAVIGATION FILTERS */
 
