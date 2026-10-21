@@ -1232,3 +1232,58 @@ select {
         gap: 10px;
     }
    }
+/* BRANDORA MOBILE PRODUCT GRID FIX */
+
+.category-product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    align-items: start !important;
+}
+
+.category-product-grid .product-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    align-self: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.category-product-grid .product-image-wrap {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 3 / 4 !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    background: #f5f5f5;
+}
+
+.category-product-grid .product-main-image {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+}
+
+.category-product-grid .product-info {
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 0 0 auto !important;
+}
+
+.category-product-grid .product-card > * {
+    max-height: none;
+}
+
+@media (max-width: 480px) {
+    .category-product-grid {
+        gap: 10px !important;
+    }
+
+    .category-product-grid .product-image-wrap {
+        aspect-ratio: 3 / 4 !important;
+    }
+                                            }
