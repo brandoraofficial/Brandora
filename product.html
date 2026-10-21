@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Product Details | Brandora</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        .details-container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 25px;
+            color: #111;
+            text-decoration: none;
+        }
+
+        .details-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+        }
+
+        .details-image {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: contain;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .details-thumbnails {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .details-thumbnails img {
+            width: 65px;
+            height: 75px;
+            object-fit: contain;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .details-title {
+            font-size: 28px;
+            margin: 10px 0;
+        }
+
+        .details-price {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .details-description {
+            line-height: 1.7;
+            margin: 20px 0;
+        }
+
+        .details-sizes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .details-sizes span {
+            border: 1px solid #ccc;
+            padding: 8px 14px;
+            border-radius: 5px;
+        }
+
+        .details-button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .details-cart {
+            background: #111;
+            color: white;
+        }
+
+        .details-whatsapp {
+            background: #25d366;
+            color: white;
+        }
+
+        @media (max-width: 650px) {
+            .details-layout {
+                grid-template-columns: 1fr;
+                gap: 22px;
+            }
+
+            .details-container {
+                margin: 15px auto;
+                padding: 14px;
+            }
+
+            .details-title {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="details-container">
+        <a class="back-link" href="index.html">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Shop
+        </a>
+
+        <div id="productDetails">
+            <p>Loading product details...</p>
+        </div>
+    </main>
+
+</body>
+  </html>
