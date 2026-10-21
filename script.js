@@ -983,7 +983,18 @@ function renderProducts(itemsToRender) {
 
             const card = document.createElement("div");
             card.className = "product-card";
+            
+            card.style.cursor = "pointer";
 
+card.addEventListener("click", function (event) {
+    if (event.target.closest("button")) {
+        return;
+    }
+
+    window.location.href =
+        "product.html?id=" + encodeURIComponent(product.id);
+});
+            
             card.innerHTML = `
                 <div class="product-image-wrap">
                     <span class="product-badge">
