@@ -1002,12 +1002,14 @@ card.addEventListener("click", function (event) {
                     </span>
 
                     <img
-                        id="main-img-${product.id}"
-                        class="product-main-image"
-                        src="${mainImage}"
-                        alt="${product.name}"
-                        loading="lazy"
-                    >
+    id="main-img-${product.id}"
+    class="product-main-image"
+    src="${mainImage}"
+    alt="${product.name || "Brandora Product"}"
+    loading="${productGrid.children.length === 0 ? "eager" : "lazy"}"
+    decoding="async"
+    fetchpriority="${productGrid.children.length === 0 ? "high" : "auto"}"
+>
 
                     ${thumbnailsHtml}
                 </div>
